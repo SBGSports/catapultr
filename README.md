@@ -11,7 +11,7 @@ In Windows, install catapultR from a GitHub _binary_ package with
 ``` r
 imports <- c('dplyr', 'httr', 'jsonlite', 'xml2', 'purrr', 'readr', 'signal', 'stringr', 'tibble', 'tidyr', 'magrittr', 'R6', 'crul') 
 install.packages(imports[!(imports %in% installed.packages()[,"Package"])], dependencies = TRUE)
-utils::install.packages("https://github.com/SBGSports/catapultr/tree/main/catapultR.zip")
+utils::install.packages("https://github.com/SBGSports/catapultr/raw/main/catapultR.zip")
 ```
 
 On other platforms, install catapultR from GitHub _source_ package with
