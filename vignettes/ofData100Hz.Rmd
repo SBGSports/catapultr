@@ -1,0 +1,36 @@
+---
+title: "100 Hz CSV Processing Examples"
+author: "Sergey Sandler"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{100 Hz CSV Processing Examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+<http://catapultr.catapultsports.com> - the catapultR package home.
+
+```{r setup}
+library(catapultR)
+suppressMessages(suppressWarnings(library(dplyr)))
+```
+
+## Load and display 100 Hz CSV
+```{r, include = TRUE,  comment = "", echo=TRUE}
+sCSV <- ofDataFileCSV()
+hiFreq <- read_CATcsv(sCSV)
+df <- hiFreq$data
+if (suppressMessages(suppressWarnings(require("ggplot2"))))
+{
+	g <- ggplot(df, aes(seq_len(NROW(df)))) + geom_line(aes(y=RawPlayerLoad)) + labs(x = "ticks (cs)", y = "Smoothed PL")
+	plot(g)
+}
+```

@@ -1,0 +1,31 @@
+Package: catapultR
+Type: Package
+Title: Access to the Catapult OpenField Data
+Version: 0.0.0.60
+Author: Sergey Sandler <datascience@catapultsports.com>
+Maintainer: Sergey Sandler <datascience@catapultsports.com>
+Description: Access to the Catapult data stored in the OpenField cloud and supplementary routines.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dplyr,
+    httr,
+    jsonlite,
+    xml2,
+    purrr,
+    readr,
+    stringr,
+    tibble,
+    tidyr,
+    magrittr,
+    R6,
+    crul
+RoxygenNote: 7.1.2
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat,
+    DT,
+    ggplot2
+VignetteBuilder: knitr
