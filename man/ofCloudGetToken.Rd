@@ -6,6 +6,7 @@
 \alias{safe_ofCloudGetTokenEx}
 \alias{safe_ofCloudValidateToken}
 \alias{ofCloudCreateToken}
+\alias{ofCloudCreateTokenWithURL}
 \title{OF cloud login}
 \usage{
 ofCloudGetToken(
@@ -47,6 +48,14 @@ ofCloudCreateToken(
   traceURL = FALSE,
   refresh_token = NULL
 )
+
+ofCloudCreateTokenWithURL(
+  sToken,
+  explicitURL,
+  tokenExpireTime = 0,
+  traceURL = FALSE,
+  refresh_token = NULL
+)
 }
 \arguments{
 \item{sRegion}{a region from the set \code{"APAC", "EMEA", "America", "China"}}
@@ -70,6 +79,8 @@ ofCloudCreateToken(
 \item{tokenExpireTime}{token expire time as POSIX time in seconds since the start of the epoch, designed to match the token Expiration Date from the OF Cloud -> API Tokens screen}
 
 \item{refresh_token}{a refresh token string}
+
+\item{explicitURL}{an explicitly specified URL for the APIs, e.g. 'openfield.catapultsports.com', facilitates usage inside AWS Cloud}
 }
 \value{
 \code{ofCloudGetToken} returns ofCredentials R6 object.
@@ -84,25 +95,31 @@ or \code{error} if failed.
 or \code{error} if failed.
 
 \code{ofCloudCreateToken} returns ofCredentials R6 object.
+
+\code{ofCloudCreateToken} returns ofCredentials R6 object.
 }
 \description{
 Implements OF cloud login with basic authentication, without appending user name and password to URL.
 }
 \section{Functions}{
 \itemize{
-\item \code{safe_ofCloudGetToken}: a safe version of the function that returns a list with 'error' and 'result'
+\item \code{safe_ofCloudGetToken()}: a safe version of the function that returns a list with 'error' and 'result'
 
-\item \code{safe_ofCloudGetTokenEx}: OF cloud login when the region is not known, by trying all possible regions
+\item \code{safe_ofCloudGetTokenEx()}: OF cloud login when the region is not known, by trying all possible regions
 
-\item \code{safe_ofCloudValidateToken}: refresh token if necessary
+\item \code{safe_ofCloudValidateToken()}: refresh token if necessary
 
 Validates a token in case it has expired.
 
-\item \code{ofCloudCreateToken}: create ofCredentials object from a given token string
+\item \code{ofCloudCreateToken()}: create ofCredentials object from a given token string
 
 The token object created with \code{ofCloudCreateToken} cannot be renewed with \code{safe_ofCloudValidateToken} unless \code{refresh_token} is provided.
-}}
 
+\item \code{ofCloudCreateTokenWithURL()}: create ofCredentials object from a given token string for an explicitly specified URL
+
+The token object created with \code{ofCloudCreateToken} cannot be renewed with \code{safe_ofCloudValidateToken} unless \code{refresh_token} is provided.
+
+}}
 \examples{
 token <- ofCloudGetToken("APAC", "sergey", "password", "clientID", "clientSecret")
 \dontrun{

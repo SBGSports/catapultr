@@ -24,10 +24,10 @@ ofCloudGetAthleteDevicesInPeriod(credentials, period_id)
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetAthleteDevicesInPeriod}: returns a data frame with device id, athlete and team details for a given period.\cr
+\item \code{ofCloudGetAthleteDevicesInPeriod()}: returns a data frame with device id, athlete and team details for a given period.\cr
 \code{\link{ofCloudGetAthletesInActivity}} and \code{\link{ofCloudGetAthletesInPeriod}} return similar data, excluding device id.
-}}
 
+}}
 \examples{
 \dontrun{
 to <- as.integer(Sys.time()); from <- to - 7*24*60*60

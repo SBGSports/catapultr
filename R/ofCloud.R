@@ -47,6 +47,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
     password = NULL,
     region = NULL,
     stage = NULL,
+    explicitURL = NULL,
     clientID = NULL,
     clientSecret = NULL,
     token = NULL,
@@ -61,14 +62,17 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
   ),
   public = list(
       initialize = function(name, password, region, stage="main", clientID, clientSecret, traceURL = FALSE, 
-                            apiStatus = 0, apiMessage = "", apiTimeout = 60, modules = NULL) 
+                            apiStatus = 0, apiMessage = "", apiTimeout = 60, modules = NULL, explicitURL = NULL) 
     {
       stopifnot(is.character(name), length(name) == 1)
       stopifnot(is.character(password), length(password) == 1)
-      stopifnot(is.character(region), length(region) == 1)
-      stopifnot(region %in% names(regionToBaseURL_map_main))
-      stopifnot(is.character(stage), length(stage) == 1)
-      stopifnot(stage %in% names(listRegionToBaseURL_map))
+      if (is.null(explicitURL)) {
+          stopifnot(is.character(region), length(region) == 1)
+          stopifnot(region %in% names(regionToBaseURL_map_main))
+          stopifnot(is.character(stage), length(stage) == 1)
+          stopifnot(stage %in% names(listRegionToBaseURL_map))
+      }
+      private$explicitURL <- explicitURL
       private$name <- name
       private$password <- password
       private$region <- region
@@ -240,8 +244,12 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
     print = function(...) {
       cat("ofCredentials: \n")
       cat("  Name: ", private$name, "\n", sep = "")
-      cat("  Region:  ", private$region, "\n", sep = "")
-      cat("  Stage:  ", private$stage, "\n", sep = "")
+	  if (is.null(private$explicitURL)) {
+		  cat("  Region:  ", private$region, "\n", sep = "")
+		  cat("  Stage:  ", private$stage, "\n", sep = "")
+	  } else {
+		  cat("  explicitURL:  ", private$explicitURL, "\n", sep = "")
+	  }
       cat("  TokenTime:  ", private$tokenTime, "\n", sep = "")
       cat("  TokenExpireTime:  ", private$tokenExpireTime, "\n", sep = "")
       cat("  ApiStatus:  ", private$apiStatus, "\n", sep = "")
@@ -278,7 +286,11 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
       invisible(self)
     },
     regionToURL = function(){
-      return(listRegionToBaseURL_map[[private$stage]][private$region])
+	  if (is.null(private$explicitURL)) {
+		return(listRegionToBaseURL_map[[private$stage]][private$region])
+	  } else {
+		return(private$explicitURL)
+	  }
     },
     getTrace = function(){
       return(private$traceURL)
@@ -395,6 +407,24 @@ ofCloudCreateToken<-function(sToken, sRegion, sStage = "main", tokenExpireTime =
 {
   credentials <- ofCredentials$new(name = "", password = "", region = sRegion, stage = sStage, 
                                    clientID = "", clientSecret = "", traceURL = traceURL)
+  credentials$setToken(sToken, tokenExpireTime = tokenExpireTime, refresh_token = refresh_token)
+  return(credentials)
+}
+
+#' @describeIn ofCloudGetToken create ofCredentials object from a given token string for an explicitly specified URL
+#'
+#' The token object created with \code{ofCloudCreateToken} cannot be renewed with \code{safe_ofCloudValidateToken} unless \code{refresh_token} is provided.
+#' 
+#' @export
+#' @param sToken a token string
+#' @param explicitURL an explicitly specified URL for the APIs, e.g. 'openfield.catapultsports.com', facilitates usage inside AWS Cloud
+#' @param tokenExpireTime token expire time as POSIX time in seconds since the start of the epoch, designed to match the token Expiration Date from the OF Cloud -> API Tokens screen
+#' @param refresh_token a refresh token string
+#' @return \code{ofCloudCreateToken} returns ofCredentials R6 object.  
+ofCloudCreateTokenWithURL<-function(sToken, explicitURL, tokenExpireTime = 0, traceURL = FALSE, refresh_token = NULL)
+{
+  credentials <- ofCredentials$new(name = "", password = "", region = NULL, stage = NULL, 
+                                   clientID = "", clientSecret = "", traceURL = traceURL, explicitURL = explicitURL)
   credentials$setToken(sToken, tokenExpireTime = tokenExpireTime, refresh_token = refresh_token)
   return(credentials)
 }

@@ -24,9 +24,9 @@ ofCloudGetVenue(credentials, id)
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetVenue}: return a data frame with a given venue system attributes.
-}}
+\item \code{ofCloudGetVenue()}: return a data frame with a given venue system attributes.
 
+}}
 \seealso{
 Other cloud metadata access APIs: 
 \code{\link{ofCloudGetBands}()},

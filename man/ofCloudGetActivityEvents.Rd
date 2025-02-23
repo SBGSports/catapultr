@@ -52,9 +52,9 @@ If \code{to} is not \code{NA}, then only events with the \code{end_time <= to} a
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetPeriodEvents}: get specified events for the specified athlete and period
-}}
+\item \code{ofCloudGetPeriodEvents()}: get specified events for the specified athlete and period
 
+}}
 \seealso{
 Other cloud data access APIs: 
 \code{\link{ofCloudGetActivityEfforts}()},

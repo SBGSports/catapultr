@@ -30,13 +30,13 @@ The functions throw if the HTTP response indicates failure. In particular, it th
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetAthletesInActivity}: get all athletes for a specified activity.\cr
+\item \code{ofCloudGetAthletesInActivity()}: get all athletes for a specified activity.\cr
 \code{\link{ofCloudGetAthleteDevicesInActivity}} returns similar data, and additionally device id.
 
-\item \code{ofCloudGetAthletesInPeriod}: get all athletes for a specified period.\cr
+\item \code{ofCloudGetAthletesInPeriod()}: get all athletes for a specified period.\cr
 \code{\link{ofCloudGetAthleteDevicesInPeriod}} returns similar data, and additionally device id.
-}}
 
+}}
 \examples{
 \dontrun{
 df <- ofCloudGetAthletes(credentials)

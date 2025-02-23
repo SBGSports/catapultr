@@ -40,10 +40,10 @@ ofCloudGetAnnotationCategories(credentials)
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetPeriodAnnotations}: returns a data frame with period annotations.
+\item \code{ofCloudGetPeriodAnnotations()}: returns a data frame with period annotations.
 
-\item \code{ofCloudGetAthleteAnnotations}: returns a data frame with athlete annotations.
+\item \code{ofCloudGetAthleteAnnotations()}: returns a data frame with athlete annotations.
 
-\item \code{ofCloudGetAnnotationCategories}: returns a data frame with annotation categories.
+\item \code{ofCloudGetAnnotationCategories()}: returns a data frame with annotation categories.
+
 }}
-

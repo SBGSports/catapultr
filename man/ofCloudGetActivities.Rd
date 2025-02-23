@@ -44,17 +44,17 @@ The returned data frame includes the following attributes:\cr
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetActivitiesEx}: get activities. The function treats \code{from}, \code{to} as vectors and triggers one cloud API call 
+\item \code{ofCloudGetActivitiesEx()}: get activities. The function treats \code{from}, \code{to} as vectors and triggers one cloud API call 
 for each \code{(from[j], to[j])} interval in parallel. 
 
 Be mindful not to overload the server with excessive number of requests. Keep the number of intervals passed into
 \code{ofCloudGetActivitiesEx} reasonable. Otherwise, the requests might be throttled on the server.
 
-\item \code{ofCloudGetPeriods}: get periods for an activity
+\item \code{ofCloudGetPeriods()}: get periods for an activity
 
-\item \code{ofCloudGetActivity}: get details for an activity
+\item \code{ofCloudGetActivity()}: get details for an activity
+
 }}
-
 \examples{
 \dontrun{
 to <- as.integer(Sys.time()); from <- to - 7*24*60*60

@@ -29,16 +29,16 @@ ofDataFileCSV() returns CSV 100 Hz data file name, packaged with catapultR packa
 }
 \section{Functions}{
 \itemize{
-\item \code{of10HzDataFileCSV}: access 10 Hz sample CSV file originated from \code{\link{ofCloudGetActivitySensorData}} / \code{\link{ofCloudGetPeriodSensorData}}.\cr
+\item \code{of10HzDataFileCSV()}: access 10 Hz sample CSV file originated from \code{\link{ofCloudGetActivitySensorData}} / \code{\link{ofCloudGetPeriodSensorData}}.\cr
 Facilitates OpenField Cloud API vignette.
 
-\item \code{ofIMAFileCSV}: access IMA events sample CSV file originated from \code{\link{ofCloudGetActivityEvents}} / \code{\link{ofCloudGetPeriodEvents}}.\cr
+\item \code{ofIMAFileCSV()}: access IMA events sample CSV file originated from \code{\link{ofCloudGetActivityEvents}} / \code{\link{ofCloudGetPeriodEvents}}.\cr
 Facilitates OpenField Cloud API vignette.
 
-\item \code{ofVelEffortsFileCSV}: access velocity efforts sample CSV file originated from \code{\link{ofCloudGetActivityEfforts}} / \code{\link{ofCloudGetPeriodEfforts}}.\cr
+\item \code{ofVelEffortsFileCSV()}: access velocity efforts sample CSV file originated from \code{\link{ofCloudGetActivityEfforts}} / \code{\link{ofCloudGetPeriodEfforts}}.\cr
 Facilitates OpenField Cloud API vignette.
+
 }}
-
 \examples{
 sCSV <- ofDataFileCSV()
 hiFreq <- read_CATcsv(sCSV)

@@ -39,11 +39,11 @@ Converts specified IMA events into a Focus-friendly data frame ready for \code{j
 }
 \section{Functions}{
 \itemize{
-\item \code{activityToFocus}: converts activity description into a Focus-friendly data frame ready for \code{jsonlite::write_json}.
+\item \code{activityToFocus()}: converts activity description into a Focus-friendly data frame ready for \code{jsonlite::write_json}.
 
-\item \code{periodToFocus}: converts periods description into a Focus-friendly data frame ready for \code{jsonlite::write_json}.
+\item \code{periodToFocus()}: converts periods description into a Focus-friendly data frame ready for \code{jsonlite::write_json}.
+
 }}
-
 \examples{
 \dontrun{
  dfActivities <- ofCloudGetActivities(token)

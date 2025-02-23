@@ -28,9 +28,9 @@ ofCloudGetBands() returns a data frame with bands.
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetBand}: get band details for a given athlete and a band
-}}
+\item \code{ofCloudGetBand()}: get band details for a given athlete and a band
 
+}}
 \seealso{
 Other cloud metadata access APIs: 
 \code{\link{ofCloudGetCustomerInfo}()},

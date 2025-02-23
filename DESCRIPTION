@@ -1,7 +1,7 @@
 Package: catapultR
 Type: Package
 Title: Access to the Catapult OpenField Data
-Version: 0.0.0.60
+Version: 0.0.0.61
 Author: Sergey Sandler <datascience@catapultsports.com>
 Maintainer: Sergey Sandler <datascience@catapultsports.com>
 Description: Access to the Catapult data stored in the OpenField cloud and supplementary routines.
@@ -21,7 +21,7 @@ Imports:
     magrittr,
     R6,
     crul
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,

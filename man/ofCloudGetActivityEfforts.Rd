@@ -56,9 +56,9 @@ ofCloudGetActivityEfforts() returns the specified efforts, or \code{NULL} if the
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetPeriodEfforts}: get specified efforts for the specified athlete and period
-}}
+\item \code{ofCloudGetPeriodEfforts()}: get specified efforts for the specified athlete and period
 
+}}
 \seealso{
 Other cloud data access APIs: 
 \code{\link{ofCloudGetActivityEvents}()},

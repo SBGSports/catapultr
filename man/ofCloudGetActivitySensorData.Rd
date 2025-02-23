@@ -134,13 +134,13 @@ assuming the athlete is mapped to the activity.
 }
 \section{Functions}{
 \itemize{
-\item \code{ofCloudGetPeriodSensorData}: get 10 Hz sensor and positional data for a given athlete and a given period,
+\item \code{ofCloudGetPeriodSensorData()}: get 10 Hz sensor and positional data for a given athlete and a given period,
 assuming the athlete is mapped to the period.
 
-\item \code{ofCloudGetActivitySensorDataEx}: get 10 Hz sensor and positional data for given athletes and a given activity,
+\item \code{ofCloudGetActivitySensorDataEx()}: get 10 Hz sensor and positional data for given athletes and a given activity,
 assuming the athletes are mapped to the activity.
 
-\item \code{ofCloudGetPeriodSensorDataEx}: get 10 Hz sensor and positional data for given athletes and a given period,
+\item \code{ofCloudGetPeriodSensorDataEx()}: get 10 Hz sensor and positional data for given athletes and a given period,
 assuming the athletes are mapped to the period.
 
 \code{ofCloudGetActivitySensorDataEx} and \code{ofCloudGetPeriodSensorDataEx} trigger one cloud API asynchronous call for each
@@ -153,7 +153,7 @@ Be mindful not to overload the server with excessive number of requests. Keep th
 \code{ofCloudGetActivitySensorDataEx} and \code{ofCloudGetPeriodSensorDataEx} reasonable. 
 Otherwise, the requests might be throttled on the server.
 
-\item \code{ofCloudGetMixedPeriodsActivitySensorData}: get 10 Hz sensor and positional data for a given athlete and a given activity, treating
+\item \code{ofCloudGetMixedPeriodsActivitySensorData()}: get 10 Hz sensor and positional data for a given athlete and a given activity, treating
 the activity as a mixed (dual stream) activity. A period must be tagged as either \emph{GPS} or \emph{LPS} in console for this feature to work.
 
 A mixed (dual stream) activity contains periods from both, \code{gps} and \code{lps} streams. The periods with the stream
@@ -161,8 +161,8 @@ type different to the default activity stream type will be honoured by the funct
 to the period. If this is the case, the function fetches the positional data relevant to the period's stream type. 
 As a result, the returned list element \code{data[[1]]} does not guarantee homogeneous 10 Hz time-stamps as returned 
 in the \code{ts and cs} columns of the \code{data[[1]]}.
-}}
 
+}}
 \examples{
 \dontrun{
 x <- ofCloudGetActivitySensorData(credentials, athlete_id, activity_id)
