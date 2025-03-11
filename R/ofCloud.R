@@ -1453,6 +1453,9 @@ ofCloudGetUserSettings<-function(credentials)
 #'  # proceed as in the example 1 above
 ofCloudParseError <- function(err)
 {
+  if (typeof(err) == "list") {
+    err <- err[[1]]
+  }
   key <- "status_code = "
   x <- suppressWarnings(unlist(stringr::str_split(err, key, n = 2)))
   if (length(x) <= 1)
