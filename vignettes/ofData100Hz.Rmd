@@ -9,28 +9,66 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
-
-<http://catapultr.catapultsports.com> - the catapultR package home.
+<http://catapultr.catapultsports.com> - the catapultR package home. 
 
 ```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
 library(catapultR)
 suppressMessages(suppressWarnings(library(dplyr)))
+suppressMessages(suppressWarnings(library(signal)))
+if (!suppressMessages(suppressWarnings(require("ggplot2"))))
+{
+	knitr::knit_exit()
+}
 ```
+
 
 ## Load and display 100 Hz CSV
 ```{r, include = TRUE,  comment = "", echo=TRUE}
 sCSV <- ofDataFileCSV()
 hiFreq <- read_CATcsv(sCSV)
 df <- hiFreq$data
-if (suppressMessages(suppressWarnings(require("ggplot2"))))
+g <- ggplot(df, aes(seq_len(NROW(df)))) + geom_line(aes(y=RawPlayerLoad)) + labs(x = "ticks (cs)", y = "Smoothed PL")
+```
+
+```{r plot, echo=FALSE, fig.width=7, fig.height=4}
+plot(g)
+```
+
+## Calculate cosine of angles between orientation (tilt vector) and oriented acceleration
+```{r calculate cosine of angles between orientation (tilt vector) and oriented acceleration}
+
+# cos_from_dot_prod() - a routine to calculate cosine of an angle between two 3D vectors.
+# This routine is designed to be called with imuAcceleration and imuOrientation vectors, 
+# where the vectors are possibly smoothed before the call.
+# Since orientation (the tilt vector) is a unit-vector, its length is 1, but the routine is kept generic.
+# Please note: the coordinate systems are different between the tilt and the other vectors, 
+# this bug is now a feature: negate imuOrientation.forward when passing into this routine.
+cos_from_dot_prod<-function(a,b,c,x,y,z)
 {
-	g <- ggplot(df, aes(seq_len(NROW(df)))) + geom_line(aes(y=RawPlayerLoad)) + labs(x = "ticks (cs)", y = "Smoothed PL")
-	plot(g)
+  len1 <- sqrt(a^2 + b^2 + c^2)
+  len2 <- sqrt(x^2 + y^2 + z^2)
+  return((a*x + b*y + c*z)         # calculate dot product
+         /(len1*len2))             # normalise
 }
+
+filter_butter <- function(x, n, W) 
+{
+  as.numeric(signal::filter(signal::butter(n, W), x))
+}
+
+df <- df  %>%  mutate_at(.vars = c("imuAcceleration.forward", "imuAcceleration.side", "imuAcceleration.up", 
+                                   "imuOrientation.forward", "imuOrientation.side", "imuOrientation.up"), 
+                         .funs = list(b = ~filter_butter(., n = 2, W = 0.015))) # 0.015*(100/2)=0.75 Hz low-pass filter
+
+# add cosine of angles between orientation (tilt vector) and oriented acceleration
+df$cosImuAccTilt_b <- cos_from_dot_prod(df$imuAcceleration.forward_b, df$imuAcceleration.side_b, df$imuAcceleration.up_b, 
+                                        -df$imuOrientation.forward_b, df$imuOrientation.side_b, df$imuOrientation.up_b) 
+g <- ggplot(df, aes(seq_len(NROW(df)))) + 
+	 geom_line(aes(y=as.numeric(cosImuAccTilt_b), colour="cosImuAccelerationTilt")) + 
+	 labs(title = "cosine of angles between orientation (tilt vector) and oriented acceleration", x = "ticks (cs)", y = "cosine")
+```
+
+```{r plot2, echo=FALSE, fig.width=7, fig.height=4}
+plot(g)
 ```
