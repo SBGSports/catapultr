@@ -28,7 +28,10 @@ if (!suppressMessages(suppressWarnings(require("ggplot2"))))
 sCSV <- ofDataFileCSV()
 hiFreq <- read_CATcsv(sCSV)
 df <- hiFreq$data
-g <- ggplot(df, aes(seq_len(NROW(df)))) + geom_line(aes(y=RawPlayerLoad)) + labs(x = "ticks (cs)", y = "Smoothed PL")
+g <- ggplot(df, aes(seq_len(NROW(df)))) + 
+	 geom_line(aes(y=RawPlayerLoad, colour="RawPlayerLoad")) + 
+     geom_line(aes(y=SmoothedPlayerLoad, colour="SmoothedPlayerLoad")) + 
+	 labs(title = "Raw and smoothed PL", x = "ticks (cs)", y = "arbits")
 ```
 
 ```{r plot, echo=FALSE, fig.width=7, fig.height=4}
