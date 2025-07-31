@@ -16,10 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(catapultR)
 suppressMessages(suppressWarnings(library(dplyr)))
 suppressMessages(suppressWarnings(library(signal)))
-if (!suppressMessages(suppressWarnings(require("ggplot2"))))
-{
-	knitr::knit_exit()
-}
+ggplot2On <- suppressMessages(suppressWarnings(require("ggplot2")))
 ```
 
 
@@ -28,14 +25,23 @@ if (!suppressMessages(suppressWarnings(require("ggplot2"))))
 sCSV <- ofDataFileCSV()
 hiFreq <- read_CATcsv(sCSV)
 df <- hiFreq$data
-g <- ggplot(df, aes(seq_len(NROW(df)))) + 
-	 geom_line(aes(y=RawPlayerLoad, colour="RawPlayerLoad")) + 
-     geom_line(aes(y=SmoothedPlayerLoad, colour="SmoothedPlayerLoad")) + 
-	 labs(title = "Raw and smoothed PL", x = "ticks (cs)", y = "arbits")
+if (ggplot2On)
+{
+	g <- ggplot(df, aes(seq_len(NROW(df)))) + 
+		 geom_line(aes(y=RawPlayerLoad, colour="RawPlayerLoad")) + 
+		 geom_line(aes(y=SmoothedPlayerLoad, colour="SmoothedPlayerLoad")) + 
+		 labs(title = "Raw and smoothed PL", x = "ticks (cs)", y = "arbits")
+}
 ```
 
 ```{r plot, echo=FALSE, fig.width=7, fig.height=4}
-plot(g)
+if (ggplot2On)
+{
+	plot(g)
+} else
+{
+	print("ggplot2 is required to make the plot")
+}
 ```
 
 ## Calculate cosine of angles between orientation (tilt vector) and oriented acceleration
@@ -67,11 +73,24 @@ df <- df  %>%  mutate_at(.vars = c("imuAcceleration.forward", "imuAcceleration.s
 # add cosine of angles between orientation (tilt vector) and oriented acceleration
 df$cosImuAccTilt_b <- cos_from_dot_prod(df$imuAcceleration.forward_b, df$imuAcceleration.side_b, df$imuAcceleration.up_b, 
                                         -df$imuOrientation.forward_b, df$imuOrientation.side_b, df$imuOrientation.up_b) 
-g <- ggplot(df, aes(seq_len(NROW(df)))) + 
-	 geom_line(aes(y=as.numeric(cosImuAccTilt_b), colour="cosImuAccelerationTilt")) + 
-	 labs(title = "cosine of angles between orientation (tilt vector) and oriented acceleration", x = "ticks (cs)", y = "cosine")
+
+if (ggplot2On)
+{
+	g <- ggplot(df, aes(seq_len(NROW(df)))) + 
+		 geom_line(aes(y=as.numeric(cosImuAccTilt_b), colour="cosImuAccelerationTilt")) + 
+		 labs(title = "cosine of angles between orientation (tilt vector) and oriented acceleration", x = "ticks (cs)", y = "cosine") +
+		 theme(legend.position = "none")
+}
 ```
 
 ```{r plot2, echo=FALSE, fig.width=7, fig.height=4}
-plot(g)
+if (ggplot2On)
+{
+	plot(g)
+} else
+{
+	print("ggplot2 is required to make the plot, printing head(as.numeric(df$cosImuAccTilt_b)) instead")
+	print(head(as.numeric(df$cosImuAccTilt_b)))
+	knitr::knit_exit()
+}
 ```
