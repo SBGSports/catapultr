@@ -48,10 +48,11 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
     region = NULL,
     stage = NULL,
     explicitURL = NULL,
+    secure = TRUE,
     clientID = NULL,
     clientSecret = NULL,
     token = NULL,
-	refresh_token = NULL,
+    refresh_token = NULL,
     tokenTime = NULL,
     tokenExpireTime = NULL,
     traceURL = NULL,
@@ -62,7 +63,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
   ),
   public = list(
       initialize = function(name, password, region, stage="main", clientID, clientSecret, traceURL = FALSE, 
-                            apiStatus = 0, apiMessage = "", apiTimeout = 60, modules = NULL, explicitURL = NULL) 
+                            apiStatus = 0, apiMessage = "", apiTimeout = 60, modules = NULL, explicitURL = NULL, secure = TRUE) 
     {
       stopifnot(is.character(name), length(name) == 1)
       stopifnot(is.character(password), length(password) == 1)
@@ -73,6 +74,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
           stopifnot(stage %in% names(listRegionToBaseURL_map))
       }
       private$explicitURL <- explicitURL
+      private$secure <- secure
       private$name <- name
       private$password <- password
       private$region <- region
@@ -96,7 +98,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
 		  lst <- list(client_id = private$clientID,
 					  client_secret = private$clientSecret,
 					  refresh_token = private$refresh_token)
-		  strURL <- stringr::str_c("https://", self$regionToURL(), "/api/v6/oauth/refresh")
+		  strURL <- self$getURL("/api/v6/oauth/refresh")
 	  }
 	  else
 	  {
@@ -105,7 +107,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
 					  grant_type = "password", 
 					  client_id = private$clientID,
 					  client_secret = private$clientSecret)
-		  strURL <- stringr::str_c("https://", self$regionToURL(), "/api/v6/oauth/token")
+		  strURL <- self$getURL("/api/v6/oauth/token")
 	  }
       safe_POST <- purrr::safely(httr::POST)
 
@@ -177,10 +179,18 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
 
 	  return(self$safeLogin(refresh = TRUE))
     },
+	getAuthorizationBearer = function() # Bearer in HTTP Authorization header
+	{
+		if (!private$secure)
+		{
+			return("")
+		}
+		return(stringr::str_c("Bearer ", stringr::str_replace_all(self$getToken(), "\"", "")))
+	},
     httrGet = function(sURL, contentType = "json")
     {
       self$resetApiStatus()
-      sURL <- stringr::str_c("https://", self$regionToURL(), sURL)
+      sURL <- self$getURL(sURL)
       if (self$getTrace())		# TODO: consider httr::with_verbose()
         print(sURL)
       # Consider adding user_agent(stringr::str_c("catapultR ", as.character(packageVersion("catapultR")))) 
@@ -188,7 +198,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
       # similar with crul::Async$new by passing headers = list(HTTPUserAgent = "...").
       # Note however, a client might have added options(HTTPUserAgent = ..) to change the header in the session scope. 
       r <- httr::GET(sURL, 
-                     httr::add_headers("Authorization" = stringr::str_c("Bearer ", stringr::str_replace_all(self$getToken(), "\"", ""))),
+                     httr::add_headers("Authorization" = self$getAuthorizationBearer()),
                      httr::timeout(private$apiTimeout),
                      handle=httr::handle(''))  # OFC-707 - suppress cookies by using a new handle
       private$apiStatus <- r$status_code   # 200 - OK, 4xx - client error (404 - file not found), 500 - server error
@@ -214,6 +224,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
     },
     httrPost = function(sURL, sBody, patch = FALSE)
     {
+      sURL <- self$getURL(sURL)
       if (self$getTrace())	# TODO: consider httr::with_verbose()
       {
         print(sURL)
@@ -223,7 +234,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
 	  f <- ifelse(patch, httr::PATCH, httr::POST)
       r <- f( url = sURL,
 			  body = sBody,
-			  httr::add_headers(.headers = c('Authorization'= stringr::str_c("Bearer ", stringr::str_replace_all(self$getToken(), "\"", "")),
+			  httr::add_headers(.headers = c('Authorization'= self$getAuthorizationBearer(),
 			 'cache-control' = 'no-cache',
 			 'Content-Type' = 'application/json',
 			 'Accept' = 'application/json')),
@@ -249,6 +260,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
 		  cat("  Stage:  ", private$stage, "\n", sep = "")
 	  } else {
 		  cat("  explicitURL:  ", private$explicitURL, "\n", sep = "")
+		  cat("  secure:  ", private$secure, "\n", sep = "")
 	  }
       cat("  TokenTime:  ", private$tokenTime, "\n", sep = "")
       cat("  TokenExpireTime:  ", private$tokenExpireTime, "\n", sep = "")
@@ -292,6 +304,10 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
 		return(private$explicitURL)
 	  }
     },
+	getURL = function(sURL){
+		base <- ifelse(private$secure, "https://", "http://")
+		stringr::str_c(base, self$regionToURL(), sURL)
+	},
     getTrace = function(){
       return(private$traceURL)
     },
@@ -420,11 +436,12 @@ ofCloudCreateToken<-function(sToken, sRegion, sStage = "main", tokenExpireTime =
 #' @param explicitURL an explicitly specified URL for the APIs, e.g. 'openfield.catapultsports.com', facilitates usage inside AWS Cloud
 #' @param tokenExpireTime token expire time as POSIX time in seconds since the start of the epoch, designed to match the token Expiration Date from the OF Cloud -> API Tokens screen
 #' @param refresh_token a refresh token string
+#' @param secure if \code{TRUE} then use \code{https} and pass \code{Bearer} into \code{Authorization} HTTP header. Use \code{secure = FALSE} in the context of private APIs that run behind VPN or in production; in this case \code{sToken} is not used.
 #' @return \code{ofCloudCreateToken} returns ofCredentials R6 object.  
-ofCloudCreateTokenWithURL<-function(sToken, explicitURL, tokenExpireTime = 0, traceURL = FALSE, refresh_token = NULL)
+ofCloudCreateTokenWithURL<-function(sToken, explicitURL, tokenExpireTime = 0, traceURL = FALSE, refresh_token = NULL, secure = TRUE)
 {
   credentials <- ofCredentials$new(name = "", password = "", region = NULL, stage = NULL, 
-                                   clientID = "", clientSecret = "", traceURL = traceURL, explicitURL = explicitURL)
+                                   clientID = "", clientSecret = "", traceURL = traceURL, explicitURL = explicitURL, secure = secure)
   credentials$setToken(sToken, tokenExpireTime = tokenExpireTime, refresh_token = refresh_token)
   return(credentials)
 }
@@ -571,7 +588,7 @@ ofCloudGetActivitiesEx<-function(credentials, from, to, syncStatus = FALSE)
   
   sURLs <- sapply(seq_along(from), function(j)
   {
-    sURL <- stringr::str_c("https://", credentials$regionToURL(), "/api/v6/activities")
+    sURL <- credentials$getURL("/api/v6/activities")
     sep <- "?"
     if (!is.na(from[j]) && !is.na(to[j]))
     {
@@ -605,8 +622,7 @@ ofCloudGetActivitiesEx<-function(credentials, from, to, syncStatus = FALSE)
   credentials$resetApiStatus()
   crul::set_opts(timeout_ms = credentials$getApiTimeout()*1000)
   cc <- crul::Async$new(urls = sURLs,
-                        headers = list("Authorization" = stringr::str_c("Bearer ", 
-                                          stringr::str_replace_all(credentials$getToken(), "\"", ""))),
+                        headers = list("Authorization" = credentials$getAuthorizationBearer()),
                         )
   # Rarely, if OpenField cloud capacity is exhausted, cc$get() triggers 'Resolving timed out after 10000 milliseconds' error. 
   res <- cc$get() 
@@ -731,7 +747,7 @@ ofCloudGetActivityPeriodSensorData<-function(credentials, athlete_id, id, bActiv
     }
     if (!all(is.na(parameters)))
     {
-      stopifnot(all(parameters %in% c("ts", "cs", "lat", "long", "o", "v", "a", "hr", "pl", "mp", "sl", "xy", "alt", "pq", "ref", "hdop", "rv", "face")))
+      stopifnot(all(parameters %in% c("ts", "cs", "lat", "long", "o", "v", "a", "hr", "pl", "mp", "sl", "xy", "alt", "pq", "ref", "hdop", "rv", "face", "sc")))
       sURL <- stringr::str_c(sURL, sep, "parameters=", paste0(parameters, collapse=","))
       sep <- "&"
     }
@@ -767,7 +783,7 @@ ofCloudGetActivityPeriodSensorData<-function(credentials, athlete_id, id, bActiv
     return(x)   
   }
 
-  sURLs <- stringr::str_c("https://", credentials$regionToURL(), sURLs) 
+  sURLs <- credentials$getURL(sURLs) 
   if (credentials$getTrace())
     print(sURLs)  
   
@@ -775,8 +791,7 @@ ofCloudGetActivityPeriodSensorData<-function(credentials, athlete_id, id, bActiv
   credentials$resetApiStatus()
   crul::set_opts(timeout_ms = credentials$getApiTimeout()*1000)
   cc <- crul::Async$new(urls = sURLs,
-                        headers = list("Authorization" = stringr::str_c("Bearer ", 
-                                          stringr::str_replace_all(credentials$getToken(), "\"", ""))) 
+                        headers = list("Authorization" = credentials$getAuthorizationBearer()) 
                         )
   res <- cc$get()
   #stopifnot(all(vapply(res, function(z) z$success(), logical(1))))
@@ -1239,7 +1254,7 @@ ofCloudGetStatistics<-function(credentials, params, groupby="athlete", filters, 
     sBody <- stringr::str_replace(sBody, '1234567890', sValues[j])
   }
 
-  sURL <- stringr::str_c("https://", credentials$regionToURL(), "/api/v6/stats?requested_only=TRUE")
+  sURL <- "/api/v6/stats?requested_only=TRUE"
   if (annotationStats) 
     sURL <- stringr::str_c(sURL, "&source=annotation_stats") 
   return(credentials$httrPost(sURL, sBody))

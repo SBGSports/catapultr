@@ -54,7 +54,8 @@ ofCloudCreateTokenWithURL(
   explicitURL,
   tokenExpireTime = 0,
   traceURL = FALSE,
-  refresh_token = NULL
+  refresh_token = NULL,
+  secure = TRUE
 )
 }
 \arguments{
@@ -81,6 +82,8 @@ ofCloudCreateTokenWithURL(
 \item{refresh_token}{a refresh token string}
 
 \item{explicitURL}{an explicitly specified URL for the APIs, e.g. 'openfield.catapultsports.com', facilitates usage inside AWS Cloud}
+
+\item{secure}{if \code{TRUE} then use \code{https} and pass \code{Bearer} into \code{Authorization} HTTP header. Use \code{secure = FALSE} in the context of private APIs that run behind VPN or in production; in this case \code{sToken} is not used.}
 }
 \value{
 \code{ofCloudGetToken} returns ofCredentials R6 object.
