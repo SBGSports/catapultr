@@ -222,7 +222,7 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
                     )
       return(ret)
     },
-    httrPost = function(sURL, sBody, patch = FALSE)
+    httrPost = function(sURL, sBody, patch = FALSE, contentType = "json")
     {
       sURL <- self$getURL(sURL)
       if (self$getTrace())	# TODO: consider httr::with_verbose()
@@ -249,8 +249,17 @@ ofCredentials <- R6::R6Class("ofCredentials", lock_class = TRUE,
           private$apiMessage <- "Too Many Attempts"      # throttle request
         stop(stringr::str_c("status_code = ", r$status_code, ". ", private$apiMessage), call. = FALSE)
       }
-      stopifnot(httr::http_type(r) == "application/json")
-      return(suppressMessages(jsonlite::fromJSON(httr::content(r, as="text"))))
+      ret <- switch(contentType, 
+                    json = suppressMessages(jsonlite::fromJSON(httr::content(r, as="text"))), # suppress 'No encoding supplied: defaulting to UTF-8'
+                    text = httr::content(r, as = "text"),
+                    raw = httr::content(r, type = "raw"),
+                    httr::content(r, as=contentType)
+                    )
+	  if (length(ret) == 0)
+	  {
+		ret <- NULL
+	  }
+      return(ret)
     },
     print = function(...) {
       cat("ofCredentials: \n")
