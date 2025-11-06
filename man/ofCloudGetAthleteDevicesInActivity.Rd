@@ -3,7 +3,7 @@
 \name{ofCloudGetAthleteDevicesInActivity}
 \alias{ofCloudGetAthleteDevicesInActivity}
 \alias{ofCloudGetAthleteDevicesInPeriod}
-\title{get device id, athlete and team details for a given activity or period}
+\title{get device id, athlete id and other details for a given activity or period}
 \usage{
 ofCloudGetAthleteDevicesInActivity(credentials, activity_id)
 
@@ -12,20 +12,20 @@ ofCloudGetAthleteDevicesInPeriod(credentials, period_id)
 \arguments{
 \item{credentials}{as returned by \code{\link{ofCloudGetToken}}, \code{\link{safe_ofCloudGetToken}} or \code{\link{safe_ofCloudGetTokenEx}}}
 
-\item{activity_id}{activity id as returned by \code{\link{ofCloudGetActivities}}}
+\item{activity_id}{as returned by \code{\link{ofCloudGetActivities}}}
 
-\item{period_id}{period ID as returned by \code{\link{ofCloudGetPeriods}} or \code{\link{ofCloudGetActivities}}}
+\item{period_id}{as returned by \code{\link{ofCloudGetPeriods}} or \code{\link{ofCloudGetActivities}}}
 }
 \value{
-\code{ofCloudGetAthleteDevicesInActivity} returns a data frame with device id, athlete and team details for a given activity, or \code{NULL} if there are no rows to return.
+\code{ofCloudGetAthleteDevicesInActivity} returns a data frame with \code{device_id}, \code{athlete_id} and \code{activity_dictionaries} for a given activity, or \code{NULL} if there are no rows to return.
 }
 \description{
-\code{ofCloudGetAthleteDevicesInActivity} returns a data frame with device id, athlete and team details for a given activity.
+\code{ofCloudGetAthleteDevicesInActivity} returns a data frame with \code{device_id}, \code{athlete_id} and \code{activity_dictionaries} for a given activity.\cr
+\code{\link{ofCloudGetAthletesInActivity}} and \code{\link{ofCloudGetAthletesInPeriod}} return \code{athlete_id} but do not return \code{device_id}.
 }
 \section{Functions}{
 \itemize{
 \item \code{ofCloudGetAthleteDevicesInPeriod()}: returns a data frame with device id, athlete and team details for a given period.\cr
-\code{\link{ofCloudGetAthletesInActivity}} and \code{\link{ofCloudGetAthletesInPeriod}} return similar data, excluding device id.
 
 }}
 \examples{
@@ -33,7 +33,8 @@ ofCloudGetAthleteDevicesInPeriod(credentials, period_id)
 to <- as.integer(Sys.time()); from <- to - 7*24*60*60
 activities <- ofCloudGetActivities(credentials, from, to)
 j <- 1   # the activity of interest
-context <- ofCloudGetAthleteDevicesInActivity(credentials, activities$id[j])
+dfAD <- ofCloudGetAthleteDevicesInActivity(credentials, activities$id[j])
+dfActDict <- bind_rows(dfAD$activity_dictionaries)
 }
 }
 \seealso{

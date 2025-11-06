@@ -677,23 +677,8 @@ ofCloudGetActivity<-function(credentials, activity_id, syncStatus = FALSE)
   return(s)                 # return the list
 }
 
-#' get device id, athlete and team details for a given activity or period
-#'
-#' \code{ofCloudGetAthleteDevicesInActivity} returns a data frame with device id, athlete and team details for a given activity.
-#'
-#' @export
-#' @param credentials as returned by \code{\link{ofCloudGetToken}}, \code{\link{safe_ofCloudGetToken}} or \code{\link{safe_ofCloudGetTokenEx}}
-#' @param activity_id activity id as returned by \code{\link{ofCloudGetActivities}}
-#' @return \code{ofCloudGetAthleteDevicesInActivity} returns a data frame with device id, athlete and team details for a given activity, or \code{NULL} if there are no rows to return. 
-#' @examples
-#' \dontrun{
-#' to <- as.integer(Sys.time()); from <- to - 7*24*60*60
-#' activities <- ofCloudGetActivities(credentials, from, to)
-#' j <- 1   # the activity of interest
-#' context <- ofCloudGetAthleteDevicesInActivity(credentials, activities$id[j])
-#' }
-#' @family athlete details access APIs
-ofCloudGetAthleteDevicesInActivity<-function(credentials, activity_id)
+# legacy route
+ofCloudGetAthleteDevicesInActivityOld<-function(credentials, activity_id)
 {
   # TODO: data_source is hardcoded as 'munged'. Test adding 'data_source=live' to the URL (as an API parameter) for live period/activity (having module apiScope:live verified),
   # similar to activities/{activityId}/athletes/{athleteId}/sensor below.
@@ -704,9 +689,33 @@ ofCloudGetAthleteDevicesInActivity<-function(credentials, activity_id)
   return(s)
 }
 
+#' get device id, athlete id and other details for a given activity or period
+#'
+#' \code{ofCloudGetAthleteDevicesInActivity} returns a data frame with \code{device_id}, \code{athlete_id} and \code{activity_dictionaries} for a given activity.\cr
+#' \code{\link{ofCloudGetAthletesInActivity}} and \code{\link{ofCloudGetAthletesInPeriod}} return \code{athlete_id} but do not return \code{device_id}.
+#'
+#' @export
+#' @param credentials as returned by \code{\link{ofCloudGetToken}}, \code{\link{safe_ofCloudGetToken}} or \code{\link{safe_ofCloudGetTokenEx}}
+#' @param activity_id as returned by \code{\link{ofCloudGetActivities}}
+#' @return \code{ofCloudGetAthleteDevicesInActivity} returns a data frame with \code{device_id}, \code{athlete_id} and \code{activity_dictionaries} for a given activity, or \code{NULL} if there are no rows to return. 
+#' @examples
+#' \dontrun{
+#' to <- as.integer(Sys.time()); from <- to - 7*24*60*60
+#' activities <- ofCloudGetActivities(credentials, from, to)
+#' j <- 1   # the activity of interest
+#' dfAD <- ofCloudGetAthleteDevicesInActivity(credentials, activities$id[j])
+#' dfActDict <- bind_rows(dfAD$activity_dictionaries)
+#' }
+#' @family athlete details access APIs
+ofCloudGetAthleteDevicesInActivity<-function(credentials, activity_id)
+{
+  sURL <- stringr::str_c("/api/v6/activities/", activity_id, "/devices")
+  s <- credentials$httrGet(sURL)  # httrGet() calls stop() if (credentials$apiStatus != 200)
+  return(s)
+}
+
 #' @describeIn ofCloudGetAthleteDevicesInActivity returns a data frame with device id, athlete and team details for a given period.\cr
-#' \code{\link{ofCloudGetAthletesInActivity}} and \code{\link{ofCloudGetAthletesInPeriod}} return similar data, excluding device id.
-#' @param period_id period ID as returned by \code{\link{ofCloudGetPeriods}} or \code{\link{ofCloudGetActivities}}
+#' @param period_id as returned by \code{\link{ofCloudGetPeriods}} or \code{\link{ofCloudGetActivities}}
 #' @export
 ofCloudGetAthleteDevicesInPeriod<-function(credentials, period_id)
 {
